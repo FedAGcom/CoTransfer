@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from '@hookform/resolvers/yup';
 import { Stepper, Step, Button, SxProps } from '@mui/material';
-import { validationSchema } from '../components/OrderForms/validationShema';
-import { TValidationSchema } from '../components/OrderForms/model';
-import { CompleteStep, ConfirmationStep, OrderStep, PassengerInfoStep } from '../components/OrderForms/Steps';
-import { Form } from '../components/Form';
+import { CompleteStep, ConfirmationStep} from '../components/OrderForms/Steps';
 import { useNavigate } from 'react-router-dom';
 import { AltOrderStep, AltPassengerInfoStep } from '../components/OrderForms/AltSteps';
+import { useAppDispatch } from '../store/store';
+import { createTransfer } from '../store/slices/userSlice';
 
 interface OrderPageProps {
 }
@@ -60,6 +58,8 @@ const OrderPage: React.FC<OrderPageProps> = () => {
         }
     ]
 
+  const dispatch = useAppDispatch()
+
   const [activeStep, setActiveStep] = React.useState(0);
   const maxSteps = steps.length;
   const navigate = useNavigate()
@@ -68,15 +68,21 @@ const OrderPage: React.FC<OrderPageProps> = () => {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep !== steps.length - 1 ? prevActiveStep + 1 : prevActiveStep);
+    sentPost()
   };
-
+  const [data, setData] = React.useState({})
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const sentPost = () => {
+    if(activeStep == 2) {
+      dispatch(createTransfer(data))
+    }
+  }
 
     return ( 
-        <form className="order-page" onSubmit={methods.handleSubmit(d => console.log(d))}>
+        <form className="order-page" onSubmit={methods.handleSubmit(d => setData(d))}>
           <FormProvider {...methods}>
             <h1 className='order-title'>Заказать трансфер</h1>
             <div>
